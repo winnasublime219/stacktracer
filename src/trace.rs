@@ -5,9 +5,8 @@ use std::path::Path;
 use winapi::shared::minwindef::{DWORD, FALSE};
 // use winapi::shared::ntdef::NULL;
 use winapi::um::dbghelp::{
-    AddrModeFlat, IMAGEHLP_MODULEW64, STACKFRAME64, SYMBOL_INFOW, SYMOPT_DEFERRED_LOADS,
-    SYMOPT_UNDNAME, StackWalk64, SymFromAddrW, SymFunctionTableAccess64, SymGetModuleBase64,
-    SymGetModuleInfoW64,
+    AddrModeFlat, IMAGEHLP_MODULEW64, STACKFRAME64, SYMBOL_INFOW, StackWalk64, SymFromAddrW,
+    SymFunctionTableAccess64, SymGetModuleBase64, SymGetModuleInfoW64,
 };
 use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::handleapi::CloseHandle;
@@ -18,9 +17,6 @@ use winapi::um::winnt::{
 };
 
 const MAX_SYM_NAME_LEN: usize = 512;
-// ---------------------------------------------------------------------------
-// Resolve a single PC address to "module.dll!Symbol+0xNN" / "module.dll+0xNN"
-// ---------------------------------------------------------------------------
 
 fn resolve_address(h_process: HANDLE, addr: u64) -> String {
     unsafe {
@@ -41,9 +37,6 @@ fn resolve_address(h_process: HANDLE, addr: u64) -> String {
             String::new()
         };
 
-        // ── 2. Try to resolve to a symbol via SymFromAddrW ──
-        //    SYMBOL_INFOW has a trailing `Name[1]` flexible-array member;
-        //    we over-allocate to hold up to MAX_SYM_NAME_LEN wide characters.
         let buf_size = mem::size_of::<SYMBOL_INFOW>() + MAX_SYM_NAME_LEN * mem::size_of::<u16>();
         let mut buf = vec![0u8; buf_size];
         let sym = buf.as_mut_ptr() as *mut SYMBOL_INFOW;
@@ -52,6 +45,7 @@ fn resolve_address(h_process: HANDLE, addr: u64) -> String {
 
         let mut sym_displacement: u64 = 0;
 
+        // https://learn.microsoft.com/en-us/windows/win32/debug/retrieving-symbol-information-by-address
         if SymFromAddrW(h_process, addr, &mut sym_displacement, sym) != 0 {
             // We have a symbol name (wide)
             let name_slice =
@@ -113,7 +107,7 @@ pub fn trace_thread_stack(pid: u32, h_process: HANDLE, tid: u32) {
             frame.AddrStack.Mode = AddrModeFlat;
 
             let mut entries: Vec<String> = Vec::new();
-            // ── Walk the stack ──
+
             loop {
                 let ok = StackWalk64(
                     IMAGE_FILE_MACHINE_AMD64 as DWORD,
@@ -133,16 +127,15 @@ pub fn trace_thread_stack(pid: u32, h_process: HANDLE, tid: u32) {
 
                 entries.push(resolve_address(h_process, frame.AddrPC.Offset));
             }
-            // ── Output ──
+
+            println!("PID\t| TID\t| STACK FRAME");
             if entries.is_empty() {
-                println!("{} | {} | ", pid, tid);
+                println!("{}\t| {}\t| ", pid, tid);
             } else {
-                println!("{} | {} | {}", pid, tid, entries.join(","));
+                println!("{}\t| {}\t| {}", pid, tid, entries.join(","));
             }
             break;
         }
-        // Initialize DbgHelp symbol handler
-        // let opts = SymGetOptions();
 
         if !h_thread.is_null() {
             CloseHandle(h_thread);
