@@ -1,25 +1,18 @@
-use std;
-mod procenum;
-mod trace;
+#![cfg(all(target_os = "windows", target_arch = "x86_64"))]
 
+use std;
 use winapi::shared::minwindef::{FALSE, TRUE};
 use winapi::um::dbghelp::{
-    SYMBOL_INFOW, SYMOPT_DEFERRED_LOADS, SYMOPT_UNDNAME, SymInitializeW, SymSetOptions,
+    SYMOPT_DEFERRED_LOADS, SYMOPT_UNDNAME, SymCleanup, SymInitializeW, SymSetOptions,
 };
 use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::handleapi::CloseHandle;
 use winapi::um::processthreadsapi::OpenProcess;
-use winapi::um::winnt::HANDLE;
-use winapi::um::winnt::{PROCESS_QUERY_INFORMATION, PROCESS_VM_READ};
+use winapi::um::winnt::{HANDLE, PROCESS_QUERY_INFORMATION, PROCESS_VM_READ};
 
-fn usage() {
-    println!("[+] Usage:\n\tstackfinder.exe PID <TID>\n");
-    println!("[+] Description:\n\tPrint the stack trace of a Thread of a given process\n");
-    println!(
-        "[+] Values:\n\tPID\tPID of process to target\n\tTID\t[Optional] TID of the target thread. If not specified,\n\t\tit will print the stack trace of all current threads."
-    );
-    std::process::exit(-1);
-}
+mod cli;
+mod procenum;
+mod trace;
 
 fn stacktrace(pid: u32, tid: u32) {
     let target_tids = procenum::collect_threads(pid, tid);
@@ -36,7 +29,7 @@ fn stacktrace(pid: u32, tid: u32) {
             );
             return;
         }
-        println!("[+] Opened handle to Process:\t{:?}", h_process);
+        // println!("[+] Opened handle to Process:\t{:?}", h_process);
 
         // Initialize symbols
         SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
@@ -45,10 +38,18 @@ fn stacktrace(pid: u32, tid: u32) {
             CloseHandle(h_process);
             return;
         }
-        println!("[+] Initialized Symbols!");
+        // println!("[+] Initialized Symbols!");
 
         for x in &target_tids {
-            trace::trace_thread_stack(h_process, *x);
+            trace::trace_thread_stack(pid, h_process, *x);
+        }
+
+        if FALSE == SymCleanup(h_process) {
+            eprintln!(
+                "[!] SymCleanup failed for PID {} (error {})",
+                pid,
+                GetLastError()
+            );
         }
         if !h_process.is_null() {
             CloseHandle(h_process);
@@ -57,37 +58,17 @@ fn stacktrace(pid: u32, tid: u32) {
 }
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-
-    if (args.len() < 2) || (args.len() > 3) {
-        usage();
+    let c_args: cli::CliArgs = cli::CliArgs::parse();
+    if !c_args.hide_banner {
+        cli::CliArgs::banner();
+        println!();
     }
 
-    let pid: u32;
-    let mut tid: u32 = 0;
+    // println!("[+] Targeting PID:\t\t{}", c_args.pid);
 
-    pid = match args[1].parse() {
-        Ok(id) => id,
-        Err(_e) => {
-            eprintln!("[-] Provided PID is invalid: {:#?}", args[1]);
-            std::process::exit(-1);
-        }
-    };
-    println!("[+] Targeting PID:\t\t{}", pid);
-
-    if args.len() == 3 {
-        tid = match args[2].parse() {
-            Ok(id) => id,
-            Err(_e) => {
-                eprintln!("[-] Provided TID is invalid: {:#?}", args[1]);
-                std::process::exit(-1);
-            }
-        };
-    }
-
-    if pid == std::process::id() {
+    if c_args.pid == std::process::id() {
         eprintln!("[-] DO NOT RUN THIS PROGRAM AGAINST THE CURRENT PROCESS");
         std::process::exit(-1);
     }
-    stacktrace(pid, tid);
+    stacktrace(c_args.pid, c_args.tid);
 }

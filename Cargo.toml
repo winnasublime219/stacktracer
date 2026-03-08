@@ -2,8 +2,10 @@
 name = "stackfinder"
 version = "0.1.0"
 edition = "2024"
+description = "A rust program to print the stack trace of a given thread"
 
 [dependencies]
+clap = { version = "4.5.60" }
 winapi = { version = "0.3.9", features = [
     "tlhelp32",
     "processthreadsapi",

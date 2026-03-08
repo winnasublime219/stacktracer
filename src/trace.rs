@@ -1,24 +1,22 @@
-#![allow(unused_imports)]
-use std::ffi::CStr;
+// use std::ffi::CStr;
 use std::mem;
 use std::path::Path;
-use std::ptr;
-use winapi::shared::minwindef::{DWORD, FALSE, TRUE};
-use winapi::shared::ntdef::NULL;
+// use std::ptr;
+use winapi::shared::minwindef::{DWORD, FALSE};
+// use winapi::shared::ntdef::NULL;
 use winapi::um::dbghelp::{
     AddrModeFlat, IMAGEHLP_MODULEW64, STACKFRAME64, SYMBOL_INFOW, SYMOPT_DEFERRED_LOADS,
-    SYMOPT_UNDNAME, StackWalk64, SymCleanup, SymFromAddrW, SymFunctionTableAccess64,
-    SymGetModuleBase64, SymGetModuleInfoW64, SymInitializeW, SymSetOptions,
+    SYMOPT_UNDNAME, StackWalk64, SymFromAddrW, SymFunctionTableAccess64, SymGetModuleBase64,
+    SymGetModuleInfoW64,
 };
 use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::handleapi::CloseHandle;
-use winapi::um::processthreadsapi::{
-    GetThreadContext, OpenProcess, OpenThread, ResumeThread, SuspendThread,
-};
+use winapi::um::processthreadsapi::{GetThreadContext, OpenThread};
 use winapi::um::winnt::{
-    CONTEXT, CONTEXT_FULL, HANDLE, IMAGE_FILE_MACHINE_AMD64, PROCESS_QUERY_INFORMATION,
-    PROCESS_VM_READ, THREAD_GET_CONTEXT, THREAD_QUERY_INFORMATION, THREAD_SUSPEND_RESUME,
+    CONTEXT, CONTEXT_FULL, HANDLE, IMAGE_FILE_MACHINE_AMD64, THREAD_GET_CONTEXT,
+    THREAD_QUERY_INFORMATION,
 };
+
 const MAX_SYM_NAME_LEN: usize = 512;
 // ---------------------------------------------------------------------------
 // Resolve a single PC address to "module.dll!Symbol+0xNN" / "module.dll+0xNN"
@@ -82,15 +80,11 @@ fn wide_to_string(buf: &[u16]) -> String {
     String::from_utf16_lossy(&buf[..len])
 }
 
-pub fn trace_thread_stack(h_process: HANDLE, tid: u32) {
+pub fn trace_thread_stack(pid: u32, h_process: HANDLE, tid: u32) {
     let h_thread: HANDLE;
-    println!("[+] Targeting TID:\t\t{}", tid);
+    //    println!("[+] Targeting TID:\t\t{}", tid);
     unsafe {
-        h_thread = OpenThread(
-            THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT | THREAD_QUERY_INFORMATION,
-            FALSE,
-            tid,
-        );
+        h_thread = OpenThread(THREAD_GET_CONTEXT | THREAD_QUERY_INFORMATION, FALSE, tid);
         if h_thread.is_null() {
             eprintln!(
                 "[-] OpenThread failed for TID {} (error {})",
@@ -99,7 +93,7 @@ pub fn trace_thread_stack(h_process: HANDLE, tid: u32) {
             );
             return;
         }
-        println!("[+] Opened handle to Thread:\t{:?}", h_thread);
+        // println!("[+] Opened handle to Thread:\t{:?}", h_thread);
 
         loop {
             let mut ctx: CONTEXT = mem::zeroed();
@@ -109,7 +103,7 @@ pub fn trace_thread_stack(h_process: HANDLE, tid: u32) {
                 eprintln!("[!] GetThreadContext failed (error {})", GetLastError());
                 break;
             }
-            println!("[+] Fetched thread context");
+            // println!("[+] Fetched thread context");
             let mut frame: STACKFRAME64 = mem::zeroed();
             frame.AddrPC.Offset = ctx.Rip;
             frame.AddrPC.Mode = AddrModeFlat;
@@ -141,9 +135,9 @@ pub fn trace_thread_stack(h_process: HANDLE, tid: u32) {
             }
             // ── Output ──
             if entries.is_empty() {
-                println!("(no frames captured)");
+                println!("{} | {} | ", pid, tid);
             } else {
-                println!("{}", entries.join(","));
+                println!("{} | {} | {}", pid, tid, entries.join(","));
             }
             break;
         }
