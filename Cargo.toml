@@ -1,5 +1,5 @@
 [package]
-name = "stackfinder"
+name = "stacktracer"
 version = "0.1.0"
 edition = "2024"
 description = "A rust program to print the stack trace of a given thread"

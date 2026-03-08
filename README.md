@@ -19,7 +19,7 @@ Note that you might need to install the `x86_64-pc-windows-gnu` toolchain
 To view a detailed usage guide, you can pass the `--help` flag:
 
 ```
-Z:\> stackfinder.exe --help
+Z:\> stacktracer.exe --help
   _____ _             _ _______
  / ____| |           | |__   __|
 | (___ | |_ __ _  ___| | _| |_ __ __ _  ___ ___ _ __
@@ -30,7 +30,7 @@ Z:\> stackfinder.exe --help
 
 A rust program to print the stack trace of a given thread
 
-Usage: stackfinder.exe [OPTIONS] --pid <pid>
+Usage: stacktracer.exe [OPTIONS] --pid <pid>
 
 Options:
       --pid <pid>    Process ID
@@ -43,13 +43,13 @@ Options:
 The only required option is the `--pid` flag. To enumerate a process without targetting a particular thread, you go like:
 
 ```
-Z:\> stackfinder.exe --pid 1234
+Z:\> stacktracer.exe --pid 1234
 ```
 
 To enumerate a specific thread, you can specify the ThreadID using the `--tid` flag:
 
 ```
-Z:\>.\stackfinder.exe --pid 3688 --tid 7336
+Z:\>.\stacktracer.exe --pid 3688 --tid 7336
   _____ _             _ _______
  / ____| |           | |__   __|
 | (___ | |_ __ _  ___| | _| |_ __ __ _  ___ ___ _ __
